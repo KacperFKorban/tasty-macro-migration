@@ -11,7 +11,12 @@ object TypeInfo {
     val name = tpe.typeSymbol.name
 
     def fullTypeName(tpe: TypeRepr): String = tpe match
-      case t: TypeRef => t.name
+      case t: NamedType =>
+        t.name
+      case o: OrType =>
+        fullTypeName(o.left) + " | " + fullTypeName(o.right)
+      case o: AndType =>
+        fullTypeName(o.left) + " & " + fullTypeName(o.right)
       case AppliedType(base, args) =>
         fullTypeName(base) + args.map(fullTypeName).mkString("[", ",", "]")
 
@@ -19,7 +24,6 @@ object TypeInfo {
       val name = s.name
       val tpe = s.tree match {
         case v: ValDef =>
-          println(v.tpt.tpe)
           fullTypeName(v.tpt.tpe)
       }
       s"$name: $tpe"
